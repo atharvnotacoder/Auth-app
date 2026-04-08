@@ -1,0 +1,20 @@
+package com.lwa.auth_app_backend.Dto;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.UUID;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class RoleDto {
+
+    private UUID id;
+    private String roleName;
+}

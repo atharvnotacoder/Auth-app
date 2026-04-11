@@ -7,12 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -48,7 +51,7 @@ public class SecurityConfig {
                      e.printStackTrace();
                      response.setStatus(401);
                      response.setContentType("applicaion/json");
-                     String message="unauthorized access, "+e.getMessage();
+                     String message=e.getMessage();
                      Map<String,String> errorMap=Map.of("message",message,"statusCOde",Integer.toString(401));
                      var objectMapper=new ObjectMapper();
                      response.getWriter().write(objectMapper.writeValueAsString(errorMap));
@@ -56,6 +59,11 @@ public class SecurityConfig {
                  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
          return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+         return configuration.getAuthenticationManager();
     }
 
 //    @Bean

@@ -5,6 +5,8 @@ import com.lwa.auth_app_backend.Entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Getter
+@Setter
 public class MyJwtService {
 
     private final SecretKey key;

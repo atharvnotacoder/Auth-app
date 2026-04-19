@@ -40,21 +40,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
 
-            try{
+            try {
 
-                if(!jwtService.isAccessToken(token)){
-                    filterChain.doFilter(request,response);
+                if (!jwtService.isAccessToken(token)) {
+                    filterChain.doFilter(request, response);
                     return;
                 }
 
                 Jws<Claims> parse = jwtService.parse(token);
                 Claims payload = parse.getPayload();
                 String userId = payload.getSubject();
-                UUID userUuId= UserHelper.parseUUID(userId);
+                UUID userUuId = UserHelper.parseUUID(userId);
 
-                userRepo.findById(userUuId).ifPresent(user->{
+                userRepo.findById(userUuId).ifPresent(user -> {
 
-                    if(user.isEnable()) {
+                    if (user.isEnable()) {
                         List<GrantedAuthority> authorities = user.getRoles() == null ? List.of() : user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
 
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -65,20 +65,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                         if (SecurityContextHolder.getContext().getAuthentication() == null)
                             SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }});
+                    }
+                });
 
-            }catch (ExpiredJwtException ex){
-                request.setAttribute("error", "Token Expired");
-//                ex.printStackTrace();
-
-            }catch (MalformedJwtException ex){
-                request.setAttribute("error", "Invalid Token");
-//                ex.printStackTrace();
-            } catch (Exception ex){
-                request.setAttribute("error", "Invalid Token");
-//                ex.printStackTrace();
-                return;
-            }
+            }catch (ExpiredJwtException ex) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Token Expired\"}");
+                    return;
+                }
+catch (JwtException ex) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Invalid Token\"}");
+                    return;
+                }
+catch (Exception ex) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Something went wrong\"}");
+                    return;
+                }
         }
         filterChain.doFilter(request,response);
     }

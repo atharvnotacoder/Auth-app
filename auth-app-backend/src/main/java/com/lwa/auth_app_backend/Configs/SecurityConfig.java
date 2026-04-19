@@ -1,6 +1,7 @@
 package com.lwa.auth_app_backend.Configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lwa.auth_app_backend.Dto.ApiError;
 import com.lwa.auth_app_backend.MyAppSecurity.CustomUserDetailService;
 import com.lwa.auth_app_backend.MyAppSecurity.JwtAuthFilter;
 import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -60,9 +62,15 @@ public class SecurityConfig {
                             message=error;
                      }
 
-                     Map<String,String> errorMap=Map.of("message",message,"statusCOde",Integer.toString(401));
+//                     Map<String,String> errorMap=Map.of("message",message,"statusCOde",Integer.toString(401));
+
+
+//                     .message(message)
+//                     .status(401)
+//                     .build();
+                     var apiError= ApiError.of(HttpStatus.BAD_REQUEST.value(),"Unauthorized Access",message,request.getRequestURI());
                      var objectMapper=new ObjectMapper();
-                     response.getWriter().write(objectMapper.writeValueAsString(errorMap));
+                     response.getWriter().write(objectMapper.writeValueAsString(apiError));
                          }))
                  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

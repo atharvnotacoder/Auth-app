@@ -1,6 +1,7 @@
 package com.lwa.auth_app_backend.Configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lwa.auth_app_backend.MyAppSecurity.CustomUserDetailService;
 import com.lwa.auth_app_backend.MyAppSecurity.JwtAuthFilter;
 import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,12 +49,17 @@ public class SecurityConfig {
          authorizeHttpRequests(authorizeHttpRequest->
                  authorizeHttpRequest.requestMatchers("/api/v1/auth/register").permitAll()
                  .requestMatchers("/api/v1/auth/login").permitAll()
-                         .anyRequest().authenticated()).httpBasic(Customizer.withDefaults())
+                         .anyRequest().authenticated())
                  .exceptionHandling(ex->ex.authenticationEntryPoint((request, response, e) ->{
                      e.printStackTrace();
                      response.setStatus(401);
                      response.setContentType("applicaion/json");
                      String message=e.getMessage();
+                     String error=(String) e.getMessage();
+                     if(error!=null){
+                            message=error;
+                     }
+
                      Map<String,String> errorMap=Map.of("message",message,"statusCOde",Integer.toString(401));
                      var objectMapper=new ObjectMapper();
                      response.getWriter().write(objectMapper.writeValueAsString(errorMap));
@@ -62,8 +70,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-         return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration, CustomUserDetailService customUserDetailService, PasswordEncoder passwordEncoder) throws Exception {
+         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+         authProvider.setUserDetailsService(customUserDetailService);
+         authProvider.setPasswordEncoder(passwordEncoder);
+         return new ProviderManager(authProvider);
     }
 
 //    @Bean

@@ -31,8 +31,11 @@ public class AuthController {
     private final UserRepo userRepo;
     private final MyJwtService jwtService;
     private final ModelMapper modelMapper;
+
+
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest){
+
         //Authenticate
         Authentication authenticate = authenticate(loginRequest);
         User user=userRepo.findByEmail(loginRequest.email()).orElseThrow(()->new BadCredentialsException("Invalid UserName or Password"));

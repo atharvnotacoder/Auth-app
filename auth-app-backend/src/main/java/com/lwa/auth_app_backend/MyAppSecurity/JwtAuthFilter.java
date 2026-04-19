@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             try{
 
-                if(jwtService.isAccessToken(token)){
+                if(!jwtService.isAccessToken(token)){
                     filterChain.doFilter(request,response);
                     return;
                 }
@@ -68,14 +68,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     }});
 
             }catch (ExpiredJwtException ex){
-                ex.printStackTrace();
+                request.setAttribute("error", "Token Expired");
+//                ex.printStackTrace();
 
             }catch (MalformedJwtException ex){
-                ex.printStackTrace();
-            }catch (JwtException ex){
-                ex.printStackTrace();
-            }catch (Exception ex){
-                ex.printStackTrace();
+                request.setAttribute("error", "Invalid Token");
+//                ex.printStackTrace();
+            } catch (Exception ex){
+                request.setAttribute("error", "Invalid Token");
+//                ex.printStackTrace();
+                return;
             }
         }
         filterChain.doFilter(request,response);
@@ -83,6 +85,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getRequestURI().startsWith("api/v1/auth/");
+        return request.getRequestURI().startsWith("/api/v1/auth/");
     }
 }

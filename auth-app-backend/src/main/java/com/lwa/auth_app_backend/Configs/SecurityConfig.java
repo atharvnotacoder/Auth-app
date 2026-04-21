@@ -51,6 +51,7 @@ public class SecurityConfig {
          authorizeHttpRequests(authorizeHttpRequest->
                  authorizeHttpRequest.requestMatchers("/api/v1/auth/register").permitAll()
                  .requestMatchers("/api/v1/auth/login").permitAll()
+                         .requestMatchers("/error").permitAll()
                          .anyRequest().authenticated())
                  .exceptionHandling(ex->ex.authenticationEntryPoint((request, response, e) ->{
                      e.printStackTrace();

@@ -6,10 +6,12 @@ import com.lwa.auth_app_backend.Dto.TokenResponse;
 import com.lwa.auth_app_backend.Dto.UserDto;
 import com.lwa.auth_app_backend.Entities.RefreshToken;
 import com.lwa.auth_app_backend.Entities.User;
+import com.lwa.auth_app_backend.MyAppSecurity.CookieService;
 import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
 import com.lwa.auth_app_backend.Repository.RefreshTokenRepo;
 import com.lwa.auth_app_backend.Repository.UserRepo;
 import com.lwa.auth_app_backend.Services.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -41,10 +43,11 @@ public class AuthController {
     private final MyJwtService jwtService;
     private final ModelMapper modelMapper;
     private final RefreshTokenRepo refreshTokenRepo;
+    private final CookieService cookieService;
     public final Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
 
         //Authenticate
         Authentication authenticate = authenticate(loginRequest);
@@ -65,22 +68,13 @@ public class AuthController {
 
         refreshTokenRepo.save(refreshTokenOb);
 
-//        String jti = UUID.randomUUID().toString();
-//
-//        RefreshToken refreshTokenOb = new RefreshToken();
-//
-//        refreshTokenOb.setJti(jti);
-//        refreshTokenOb.setUser(user);
-//        refreshTokenOb.setCreatedAt(Instant.now());
-//        refreshTokenOb.setExpiredAt(
-//                Instant.now().plusSeconds(jwtService.getRefreshTtlSeconds())
-//        );
-//        refreshTokenOb.setRevoked(false);
-
-//        refreshTokenRepo.save(refreshTokenOb);
         //GENERAtE tOKEN
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken=jwtService.generateRefreshToken(user, refreshTokenOb.getJti());
+
+        //use-cookie service to attach refreshToken in cookies
+        cookieService.attachRefreshCookie(response,refreshToken,(int)jwtService.getRefreshTtlSeconds());
+        cookieService.addNoStoreHeaders(response);
         TokenResponse tokenResponse = TokenResponse.of(accessToken, refreshToken, jwtService.getAccessTtlSeconds(), modelMapper.map(user, UserDto.class));
         return ResponseEntity.ok(tokenResponse);
 

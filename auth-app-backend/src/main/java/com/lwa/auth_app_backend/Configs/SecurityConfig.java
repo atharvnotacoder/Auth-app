@@ -5,6 +5,7 @@ import com.lwa.auth_app_backend.Dto.ApiError;
 import com.lwa.auth_app_backend.MyAppSecurity.CustomUserDetailService;
 import com.lwa.auth_app_backend.MyAppSecurity.JwtAuthFilter;
 import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Map;
@@ -35,9 +37,11 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
      @Bean
     public PasswordEncoder passwordEncoder(){
      return new BCryptPasswordEncoder();
@@ -55,6 +59,10 @@ public class SecurityConfig {
                          .requestMatchers("/api/v1/auth/logout").permitAll()
                          .requestMatchers("/error").permitAll()
                          .anyRequest().authenticated())
+                 .oauth2Login(oauth2->
+                         oauth2.successHandler(authenticationSuccessHandler)
+                                 .failureHandler(null))
+                 .logout(AbstractHttpConfigurer::disable)
                  .exceptionHandling(ex->ex.authenticationEntryPoint((request, response, e) ->{
                      e.printStackTrace();
                      response.setStatus(401);

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,6 +31,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final RefreshTokenRepo refreshTokenRepo;
     private final UserRepo userRepo;
     private final Logger logger= LoggerFactory.getLogger(this.getClass());
+@Value("${app.auth.frontend.success-redirect}")
+    private String frontEndSuccessUrl;
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         logger.info("Successful Authentication");
@@ -51,21 +54,40 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 String email = oAuth2User.getAttributes().getOrDefault("email", "").toString();
                 String name = oAuth2User.getAttributes().getOrDefault("name", "").toString();
                 String picture = oAuth2User.getAttributes().getOrDefault("picture", "").toString();
-                user = User.builder()
+                User newUser = User.builder()
                         .email(email)
                         .name(name)
                         .image(picture)
                         .enable(true)
                         .provider(Provider.GOOGLE)
+                        .providerId(googleId)
                         .build();
 
-                userRepo.findByEmail(email).ifPresentOrElse(user1 -> {
-                    logger.info("User already exist");
-                    logger.info(user1.toString());
-                }, () -> {
-                    userRepo.save(user);
-                });
+                 user =userRepo.findByEmail(email).orElseGet(()->userRepo.save(newUser));
             }
+
+            case "github"->{
+                String name= oAuth2User.getAttributes().getOrDefault("login","").toString();
+
+                String githubId=oAuth2User.getAttributes().getOrDefault("id","").toString();
+                String image=oAuth2User.getAttributes().getOrDefault("avatar_url","").toString();
+
+                String email=(String) oAuth2User.getAttributes().get("email");
+                if(email==null){
+                    email=name+"@github.com";
+                }
+                User newUser = User.builder()
+                        .email(email)
+                        .name(name)
+                        .image(image)
+                        .enable(true)
+                        .provider(Provider.GITHUB)
+                        .providerId(githubId)
+                        .build();
+
+                user =userRepo.findByEmail(email).orElseGet(()->userRepo.save(newUser));
+            }
+
             default -> throw
                     new RuntimeException("Invalid registration id");
         }
@@ -86,6 +108,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
        cookieService.attachRefreshCookie(response,refreshToken,(int) jwtService.getRefreshTtlSeconds());
 
-        response.getWriter().write("Login Success");
+       response.sendRedirect(frontEndSuccessUrl);
     }
 }

@@ -19,20 +19,6 @@ const FuturisticAuthHome = () => {
   return (
     <div className="min-h-screen transition-colors duration-500 bg-white text-gray-900 dark:bg-black dark:text-white">
       {/* Navbar */}
-      <nav className="flex justify-between items-center px-8 py-6 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold tracking-wide">AuthX</h1>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </Button>
-          <Button variant="ghost">Login</Button>
-          <Button>Sign Up</Button>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <section className="text-center py-24 px-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">

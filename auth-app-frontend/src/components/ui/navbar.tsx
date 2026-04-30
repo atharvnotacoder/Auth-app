@@ -2,8 +2,15 @@ import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Button } from './button'
 import { Sun, Moon } from 'lucide-react'
+import useAuth from '@/Auth/Store'
+import { useNavigate } from 'react-router-dom'
 
 const Navbar = () => {
+
+  const checkLogin=useAuth(state=>state.checkLogin);
+  const user=useAuth(state=>state.user);
+  const navigate=useNavigate();
+  const logout=useAuth(state=>state.logout)
 
   const toggleTheme = () => {
     const root = document.documentElement
@@ -35,7 +42,27 @@ const Navbar = () => {
 
       {/* Nav Links */}
       <div className='flex gap-4 items-center'>
-        <Link to="/">Home</Link>
+        {
+          checkLogin() ? (
+            <>
+            <NavLink to="/dashboard/profile">{user?.name}</NavLink>
+
+        
+          <Button className='cursor-pointer'size={'sm'} variant={'outline'} onClick={()=>{logout();navigate("/")}}>Logout</Button>
+
+        {/* Theme Toggle */}
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={toggleTheme}
+        >
+          <Sun className="h-4 w-4 dark:hidden" />
+          <Moon className="h-4 w-4 hidden dark:block" />
+        </Button>
+            </>
+          ):(
+            <>
+            <NavLink to="/">Home</NavLink>
 
         <NavLink to={'/login'}>
           <Button size={'sm'} variant={'outline'}>Login</Button>
@@ -53,7 +80,9 @@ const Navbar = () => {
         >
           <Sun className="h-4 w-4 dark:hidden" />
           <Moon className="h-4 w-4 hidden dark:block" />
-        </Button>
+        </Button></>
+          )
+        }
       </div>
     </nav>
   )

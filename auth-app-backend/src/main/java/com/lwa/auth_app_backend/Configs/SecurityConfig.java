@@ -5,6 +5,7 @@ import com.lwa.auth_app_backend.Dto.ApiError;
 import com.lwa.auth_app_backend.MyAppSecurity.CustomUserDetailService;
 import com.lwa.auth_app_backend.MyAppSecurity.JwtAuthFilter;
 import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,11 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -103,4 +108,17 @@ public class SecurityConfig {
 //        UserDetails user2 = userBuilder.username("Atharv").password("123").roles("USER").build();
 //    return new InMemoryUserDetailsManager(user1,user2);
 //    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+         var config=new CorsConfiguration();
+         config.setAllowedOrigins(List.of("http://localhost:5173"));
+         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        var source=new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",config);
+        return source;
+     }
 }

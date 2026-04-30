@@ -8,9 +8,13 @@ import { motion, useScroll } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import type {LoginData}  from '@/models/LoginData';
-import { data } from 'react-router';
+import { useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
-
+import { loginUser } from '@/services/AuthService';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { CheckCircle2Icon } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import useAuth from '@/Auth/Store';
 const Login = () => {
 
     const[data,setData]=useState<LoginData>({
@@ -21,6 +25,9 @@ const Login = () => {
 
     const[error,setError]=useState<any>(null)
 
+    const navigator=useNavigate();
+
+    const login=useAuth(state=>state.login);
 
     const handleChange=(e:any)=>{
       setData((data)=>({
@@ -29,20 +36,41 @@ const Login = () => {
     }))
     };
 
-  const handleSubmit=(e:any)=>{
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log(data);
 
-    if(data.email===""){
+    if (data.email === "") {
       toast.error("Please enter your email");
       return;
     }
-    if(data.password===""){
+    if (data.password === "") {
       toast.error("Please fill password");
       return;
     }
-    setData({email:"",password:""});
-  }
+
+    console.log(data);
+    //server call for login
+    try {
+      setLoading(true);
+      // const userInfo = await loginUser(data);
+
+      const userInfo = await login(data);
+
+
+      toast.success("Login successful");
+      // console.log(userInfo); 
+
+      //save the current user logged in info in local storage
+      navigator('/dashboard');
+      setData({ email: "", password: "" });
+    } catch (error: any) {
+      setError(error);
+      toast.error("Login failed. Please check your credentials and try again.");
+    }
+    finally{
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-br from-white via-gray-100 to-gray-200 dark:from-black dark:via-gray-900 dark:to-gray-950 transition-colors">
@@ -61,6 +89,14 @@ const Login = () => {
               Login to your account to continue
             </CardDescription>
           </CardHeader>
+          {
+            error && (<div className='mt-2 text-center'>
+            <Alert variant="destructive" className="max-w-md">
+               <CheckCircle2Icon />
+                <AlertTitle>{error?.response?.data?.message}</AlertTitle>
+            </Alert>
+          </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
           <CardContent className="p-5 sm:p-6 space-y-5 sm:space-y-6">
             {/* Email */}
@@ -76,7 +112,9 @@ const Login = () => {
             </div>
 
             {/* Login Button */}
-            <Button className="w-full">Login</Button>
+            <Button disabled={loading} className="w-full cursor-pointer">{loading ? <><Spinner/>'Please wait...' </>:"Login"}
+              
+              </Button>
 
             {/* Divider */}
             <div className="relative flex items-center">

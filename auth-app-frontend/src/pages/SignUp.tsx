@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import type RegisterData from '../models/RegisterData';
 import { registerUser } from '@/services/AuthService';
 import { useNavigate } from 'react-router';
+import { Spinner } from '@/components/ui/spinner';
 
 const SignUp = () => {
 
@@ -106,7 +107,10 @@ catch(err:any){
             </div>
 
             {/* Signup Button */}
-            <Button className="w-full">Sign Up</Button>
+            {/* <Button className="w-full">Sign Up</Button> */}
+            <Button disabled={loading} className="w-full cursor-pointer">{loading ? <><Spinner/>'Please wait...' </>:"Sign Up"}
+              
+              </Button>
 
             {/* Divider */}
             <div className="relative flex items-center">

@@ -25,6 +25,12 @@ export const getUser=async(emailId:string|undefined)=>{
     if(!emailId){
         throw new Error("Email ID is required");
     }
-    const res= await apiClient.post<User>(`/user/email/${emailId}`);
+    const res= await apiClient.get<User>(`/users/email/${emailId}`);
         return res.data;
     }
+
+//refersh token
+ export const refreshToken=async ()=>{
+    const res=await apiClient.post<LoginResponseData>(`/auth/refresh`);
+    return res.data;
+}

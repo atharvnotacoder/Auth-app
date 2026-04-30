@@ -17,6 +17,7 @@ const UserHome = () => {
     try{
         const userData=await getUserFromService(user?.email || "")
         setUser1(userData);
+        toast.success("User data fetched successfully");
       }catch(err){
         toast.error("Failed to fetch user data");
 

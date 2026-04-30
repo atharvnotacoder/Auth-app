@@ -5,16 +5,16 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { motion, useScroll } from "framer-motion";
-import { FaGithub } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+
 import type {LoginData}  from '@/models/LoginData';
 import { useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
-import { loginUser } from '@/services/AuthService';
+
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle2Icon } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import useAuth from '@/Auth/Store';
+import Oauth2Buttons from '@/components/ui/Oauth2Buttons';
 const Login = () => {
 
     const[data,setData]=useState<LoginData>({
@@ -124,17 +124,7 @@ const Login = () => {
             </div>
 
             {/* Social Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Button variant="outline" className="flex items-center justify-center gap-2">
-                <FcGoogle size={18} />
-                Google
-              </Button>
-
-              <Button variant="outline" className="flex items-center justify-center gap-2">
-                <FaGithub size={18} />
-                GitHub
-              </Button>
-            </div>
+            <Oauth2Buttons/>
           </CardContent>
           </form>
         </Card>

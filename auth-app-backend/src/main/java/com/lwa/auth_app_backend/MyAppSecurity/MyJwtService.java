@@ -64,7 +64,7 @@ public class MyJwtService {
                 .subject(user.getId().toString())
                 .issuer(issuer)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(accessTtlSeconds)))
+                .expiration(Date.from(now.plusSeconds(refreshTtlSeconds)))
                 .claims(Map.of("typ","refresh"
                 )).signWith(key, SignatureAlgorithm.HS512).compact();
     }

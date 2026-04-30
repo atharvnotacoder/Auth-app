@@ -4,13 +4,12 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { motion } from "framer-motion";
-import { FaGithub } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import toast from 'react-hot-toast';
 import type RegisterData from '../models/RegisterData';
 import { registerUser } from '@/services/AuthService';
 import { useNavigate } from 'react-router';
 import { Spinner } from '@/components/ui/spinner';
+import Oauth2Buttons from '@/components/ui/Oauth2Buttons';
 
 const SignUp = () => {
 
@@ -120,17 +119,7 @@ catch(err:any){
             </div>
 
             {/* Social Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Button variant="outline" className="flex items-center justify-center gap-2">
-                <FcGoogle size={18} />
-                Google
-              </Button>
-
-              <Button variant="outline" className="flex items-center justify-center gap-2">
-                <FaGithub size={18} />
-                GitHub
-              </Button>
-            </div>
+            <Oauth2Buttons/>
             </form>
           </CardContent>
         </Card>

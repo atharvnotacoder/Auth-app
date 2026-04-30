@@ -4,6 +4,7 @@ import type {LoginData} from '../models/LoginData';
 import { loginUser, logoutUser } from '@/services/AuthService';
 import type LoginResponseData from '@/models/LoginResponseData';
 import {persist} from 'zustand/middleware';
+import type { AccelerateConfig } from 'framer-motion';
 // import { User } from 'lucide-react';
 
 const LOCAL_KEY  ="app_state";
@@ -19,6 +20,8 @@ type AuthState = {
     login:(loginData:LoginData)=>Promise<LoginResponseData>;
     logout:(silent?:boolean)=>void;
     checkLogin:()=>boolean | undefined;
+
+    changeLocalLoginData:(AccessToken:string,user:User, authStatus:AuthStatus)=>void;
 };
 
 
@@ -29,6 +32,16 @@ const useAuth=create<AuthState>()(persist(
     user:null,
     authStatus: 'idle' as AuthStatus,
     authLoading:false,
+
+    changeLocalLoginData:(AccessToken:string,user:User, authStatus:AuthStatus)=>{
+        set({ 
+            AccessToken,
+            user,
+            authStatus,
+        });
+    }
+    
+    ,
     login: async (loginData: LoginData): Promise<LoginResponseData> => {
         set({ authLoading: true, authStatus: 'authenticating' });
         try {
@@ -69,6 +82,8 @@ const useAuth=create<AuthState>()(persist(
         const state = get();
         return !!(state.AccessToken && state.authStatus === 'authenticated');
     },
+
+    
 
 }),{name:LOCAL_KEY}));
 

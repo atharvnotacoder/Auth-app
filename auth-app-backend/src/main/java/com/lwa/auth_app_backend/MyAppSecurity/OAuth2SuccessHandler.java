@@ -49,14 +49,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         User user;
         switch (registrationId){
-            case "google"-> {
+            case "google" -> {
                 String googleId = oAuth2User.getAttributes().getOrDefault("sub", "").toString();
                 String email = oAuth2User.getAttributes().getOrDefault("email", "").toString();
                 String name = oAuth2User.getAttributes().getOrDefault("name", "").toString();
                 String picture = oAuth2User.getAttributes().getOrDefault("picture", "").toString();
                 User newUser = User.builder()
                         .email(email)
-                        .name(name)
+                        .name(name!=null?name:"" )
                         .image(picture)
                         .enable(true)
                         .provider(Provider.GOOGLE)

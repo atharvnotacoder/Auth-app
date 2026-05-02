@@ -1,10 +1,13 @@
 package com.lwa.auth_app_backend.Services;
 
+import com.lwa.auth_app_backend.Configs.AppConstants;
 import com.lwa.auth_app_backend.Custom_Exceptions.ResourceNotFoundException;
 import com.lwa.auth_app_backend.Dto.UserDto;
 import com.lwa.auth_app_backend.Entities.Provider;
+import com.lwa.auth_app_backend.Entities.Role;
 import com.lwa.auth_app_backend.Entities.User;
 import com.lwa.auth_app_backend.Helpers.UserHelper;
+import com.lwa.auth_app_backend.Repository.RoleRepo;
 import com.lwa.auth_app_backend.Repository.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +25,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepo userRepo;
     private final ModelMapper modelMapper;
-
+    private final RoleRepo roleRepo;
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
@@ -38,7 +41,9 @@ public class UserServiceImpl implements UserService{
         user.setProvider(userDto.getProvider()!=null?userDto.getProvider(): Provider.LOCAL);
 
         //Role assignment logic goes here
-
+        //assign default role
+        Role role= roleRepo.findByRoleName("ROLE_"+ AppConstants.GUEST_ROLE).orElse(null);
+        user.getRoles().add(role);
         User savedUser = userRepo.save(user);
 
         return modelMapper.map(savedUser,UserDto.class);

@@ -1,0 +1,20 @@
+[33m495b4ed[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m implemented reset password
+[33ma00e6dc[m implemented email service and reset password logic need to work on frontend of it
+[33mc2d0c24[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Almost done
+[33ma86c98d[m working on oauth
+[33m1b9a04c[m working on frnend
+[33m54ca29a[m Added signup logic now working on login logic
+[33m5a7091e[m Completed frontend design next starting with functionlity implementation
+[33m734ea70[m working on frontend
+[33mbeec6b1[m Completed backend Started with Frontend
+[33m7520c7a[m implemented oauth 2.0 provider- google, yet to implement oauth 2 using github. 20
+[33m1c7b8f8[m completed implementation of jwt token rotation and logout feature . Next is implementing OAuth 2.0 (17).
+[33m9350899[m implemented cookies which will take the refreshToken along with the response, next is making api endpoints for refresh token auto renewal, (16).
+[33m9942e82[m implemented jwt refresh token, working fine,made some changes to token_refresh db table and removed unwanted columns, now ready to work on cookie management
+[33mb671363[m implemented jwt refresh token, need to fix things in it
+[33mc568490[m final working, rollback if gone wrong
+[33m0d83d82[m testing
+[33m13c4449[m Docs: update notes
+[33me1c5dcb[m Updated project with latest changes implemented JWT tokens
+[33m3e0b79d[m Add files via upload
+[33m1f08771[m Initial commit

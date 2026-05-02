@@ -17,6 +17,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,7 +43,7 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -61,8 +62,8 @@ public class SecurityConfig {
                  authorizeHttpRequest.requestMatchers("/api/v1/auth/register").permitAll()
                  .requestMatchers("/api/v1/auth/login").permitAll()
                          .requestMatchers("/api/v1/auth/refresh").permitAll()
-                         .requestMatchers("/api/v1/auth/logout").permitAll()
-                         .requestMatchers("/error").permitAll()
+                         .requestMatchers("/api/v1/auth/logout","/api/v1/auth/send-reset-otp","/api/v1/auth/reset-password").permitAll().requestMatchers(HttpMethod.GET).hasRole(AppConstants.GUEST_ROLE)
+                         .requestMatchers("/error").permitAll().requestMatchers("/api/v1/user/**").hasRole(AppConstants.ADMIN_ROLE)
                          .anyRequest().authenticated())
                  .oauth2Login(oauth2->
                          oauth2.successHandler(authenticationSuccessHandler)
@@ -87,6 +88,17 @@ public class SecurityConfig {
                      var apiError= ApiError.of(HttpStatus.BAD_REQUEST.value(),"Unauthorized Access",message,request.getRequestURI());
                      var objectMapper=new ObjectMapper();
                      response.getWriter().write(objectMapper.writeValueAsString(apiError));
+                         }).accessDeniedHandler((request, response, accessDeniedException) -> {
+                             response.setStatus(403);
+                             response.setContentType("application/json");
+                             String message="Unauthorized";
+                             String error= (String) request.getAttribute("error");
+                             if(error!=null){
+                                 message=error;
+                             }
+                             var apiError=ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden Access",message,request.getRequestURI());
+                             var objectMapper=new ObjectMapper();
+                             response.getWriter().write(objectMapper.writeValueAsString(apiError));
                          }))
                  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

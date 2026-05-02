@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Iterator;
@@ -52,6 +53,7 @@ public class UserController {
     }
 
     //GET USER BY ID
+    @PreAuthorize("hasRole('ADMIN_ROLE')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable("userId") String userId){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));

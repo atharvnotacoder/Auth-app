@@ -1,10 +1,8 @@
 package com.lwa.auth_app_backend.Controllers;
 
 import com.lwa.auth_app_backend.Custom_Exceptions.GlobalExceptionHandler;
-import com.lwa.auth_app_backend.Dto.LoginRequest;
-import com.lwa.auth_app_backend.Dto.RefreshTokenRequest;
-import com.lwa.auth_app_backend.Dto.TokenResponse;
-import com.lwa.auth_app_backend.Dto.UserDto;
+import com.lwa.auth_app_backend.Custom_Exceptions.ResourceNotFoundException;
+import com.lwa.auth_app_backend.Dto.*;
 import com.lwa.auth_app_backend.Entities.RefreshToken;
 import com.lwa.auth_app_backend.Entities.User;
 import com.lwa.auth_app_backend.MyAppSecurity.CookieService;
@@ -12,6 +10,7 @@ import com.lwa.auth_app_backend.MyAppSecurity.MyJwtService;
 import com.lwa.auth_app_backend.Repository.RefreshTokenRepo;
 import com.lwa.auth_app_backend.Repository.UserRepo;
 import com.lwa.auth_app_backend.Services.AuthService;
+import com.lwa.auth_app_backend.Services.EmailService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +33,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -48,6 +48,8 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final RefreshTokenRepo refreshTokenRepo;
     private final CookieService cookieService;
+    private final EmailService emailService;
+
     public final Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @PostMapping("/login")
@@ -192,6 +194,33 @@ public class AuthController {
     }
     @PostMapping("/register")
     public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDto));
+        UserDto userDto1 = authService.registerUser(userDto);
+//        emailService.sendWelcomeEmail(userDto.getEmail(),userDto.getName());
+//        try {
+//            emailService.sendWelcomeEmail(userDto.getEmail(), userDto.getName());
+//        } catch (Exception e) {
+//            System.out.println("Email failed: " + e.getMessage());
+//        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDto1);
+
+    }
+
+    @PostMapping("/send-reset-otp")
+    public void sendResetOtpMail(@RequestParam String email){
+        try{
+            authService.sendResetOtp(email);
+        }catch (Exception ex){
+            throw new RuntimeException("Something went wrong");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public void resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
+        try{
+            authService.resetPassword(resetPasswordRequest.email(),resetPasswordRequest.otp(), resetPasswordRequest.newPassword());
+
+        }catch (Exception ex){
+            throw new RuntimeException("Failed to reset Otp");
+        }
     }
 }
